@@ -1,0 +1,3 @@
+/home/qwertilla/Documents/GitHub/cpp_proc/build/CMakeFiles/cpp_proc.dir
+/home/qwertilla/Documents/GitHub/cpp_proc/build/CMakeFiles/edit_cache.dir
+/home/qwertilla/Documents/GitHub/cpp_proc/build/CMakeFiles/rebuild_cache.dir
