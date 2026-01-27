@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "cpm.h"
+#include "../include/cpm.h"
 
 int main(int, char**){
     cpm manager;

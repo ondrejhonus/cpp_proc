@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include "cpm.h"
+#include "../include/cpm.h"
 
 using std::string;
 
