@@ -1,3 +1,6 @@
 #!/bin/bash
-./run.sh
-sudo cp ./output/main /usr/local/bin/cpm
+
+# Build project
+g++ -Wall -Wextra -g3 ./src/main.cpp ./src/cpm.cpp -o ./output/main
+# put binary into /bin/cpm
+sudo cp ./output/main /bin/cpm
