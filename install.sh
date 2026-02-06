@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Build project
-g++ -Wall -Wextra -g3 ./src/main.cpp ./src/cpm.cpp -o ./output/main
-# put binary into /bin/cpm
-sudo cp ./output/main /bin/cpm
+cmake -B build
+cmake --build build
+./build/cpp_proc
+sudo cp ./build/cpp_proc /bin/cpm
+echo -e "\nSuccessfully installed CPM!\nThank you for using my program! <3\n"
