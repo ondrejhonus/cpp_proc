@@ -1,89 +1,108 @@
 #include "ui.h"
+#include <memory>
+#include <string>
+#include <vector>
 
-#include <memory> // for allocator, __shared_ptr_access, shared_ptr
-#include <string> // for string, basic_string
-#include <vector> // for vector
-#include "ftxui/component/component.hpp"          // for Renderer, ResizableSplitBottom, ResizableSplitLeft, ResizableSplitRight, ResizableSplitTop
-#include "ftxui/component/component_base.hpp"     // for ComponentBase
-#include "ftxui/component/screen_interactive.hpp" // for ScreenInteractive
-#include "ftxui/dom/elements.hpp"                 // for Element, operator|, text, center, border
+#include "ftxui/component/component.hpp"
+#include "ftxui/component/screen_interactive.hpp"
+#include "ftxui/dom/elements.hpp"
 #include "ftxui/dom/table.hpp"
 
 #include "../include/cpm.h"
 
 using namespace ftxui;
 
-auto ui_controller()
-{
-    return 0;
-}
-
-int ui::draw_ui()
-{
+int ui::draw_ui() {
     cpm manager;
-    auto table_component = Renderer([&]() -> Element {
-        auto procs = manager.get_all_proc();
-
-        std::vector<std::vector<std::string>> table_data;
-        
-        // head
-        table_data.push_back({"PID", "NAME", "STATE", "MEMORY"});
-
-        // data
-        for (const auto& p : procs) {
-            table_data.push_back({
-                std::to_string(p.pid),
-                p.name,
-                p.state,
-                std::to_string(p.memory) + " KB"
-        });
-    }
-    auto table = Table(table_data);
-    
-    table.SelectAll().Separator();
-    table.SelectRow(0).Decorate(bold);
-    
-   return table.Render() | vscroll_indicator | frame | flex;
-});
-
-
-    // Sizes:
     auto screen = ScreenInteractive::Fullscreen();
-    int top_size = 3;
-    int head_size = 1;
-    int bottom_size = 2;
+    
+    int selected_row = 0; 
+    int total_rows = 0;
 
-    auto top = Renderer([&] { return text("CPM - Task Manager") | center; });
-    auto header = Renderer([&] { return text("Sorting: [Name] [PID] [Mem]") | center; });
-    auto bottom_status = Renderer([&] { return text("Press Q to Quit") | center; });
+    auto table_content = Renderer([&]() {
+        auto procs = manager.get_all_proc();
+        total_rows = procs.size();
 
-    // Renderers:
-    auto container = Renderer([&] {
+        std::vector<std::vector<std::string>> rows;
+        for (int i = 0; i < total_rows; ++i) {
+            const auto& p = procs[i];
+            rows.push_back({
+                std::to_string(p.pid), 
+                p.name, 
+                p.state, 
+                std::to_string(p.memory) + " KB"
+            });
+        }
+
+        auto table = Table(rows);
+        table.SelectAll().Border(LIGHT);
+        table.SelectAll().Separator(LIGHT);
+
+        table.SelectAll().DecorateCells(center);
+
+        table.SelectRow(0).Decorate(bold);
+        table.SelectRow(0).SeparatorVertical(LIGHT);
+
+        if (total_rows > 0) {
+            selected_row = std::max(0, std::min(selected_row, total_rows - 1));
+
+            table.SelectRow(selected_row).DecorateCells(inverted);
+
+            table.SelectRow(selected_row).Decorate(focus);
+        }
+
+        return table.Render() | vscroll_indicator | yframe | flex;
+    });
+
+    auto header_content = Renderer([&] {
+         std::vector<std::vector<std::string>> header_data;
+         header_data.push_back({" [PID] ", "               [NAME] ", "                [STATE] ", " [MEMORY] "});
+         auto table = Table(header_data);
+         table.SelectRow(0).Decorate(bold);
+         return table.Render();
+    });
+
+    auto layout = Renderer(table_content, [&] {
         return vbox({
-            top->Render(),
+            text("CPM - Task Manager") | center | bold,
             separator(),
-            header->Render(),
+            header_content->Render(), 
             separator(),
-            table_component->Render() | flex, 
+            table_content->Render() | flex,
             separator(),
-            bottom_status->Render()
-        });
+            text("Arrows to Scroll | Q to Quit") | center
+        }) | border;
     });
 
-    auto main_renderer = Renderer(container, [&] {
-        return container->Render() | border;
+    auto final_ui = CatchEvent(layout, [&](Event event) {
+        if (event == Event::Character('q')) {
+            screen.Exit();
+            return true;
+        }
+
+        if (event.is_mouse()) {
+            if (event.mouse().button == Mouse::WheelUp) {
+                if (selected_row > 0) selected_row--;
+                return true;
+            }
+            if (event.mouse().button == Mouse::WheelDown) {
+                if (selected_row < total_rows - 1) selected_row++;
+                return true;
+            }
+        }
+
+        if (event == Event::ArrowUp) {
+            if (selected_row > 0) selected_row--;
+            return true;
+        }
+        if (event == Event::ArrowDown) {
+            if (selected_row < total_rows - 1) selected_row++;
+            return true;
+        }
+
+        return false;
     });
 
-    main_renderer |= CatchEvent([&](Event event) {
-    if (event == Event::Character('q')) {
-        screen.Exit();
-        return true;
-    }
-    return false;
-});
-
-    screen.Loop(main_renderer);
+    screen.Loop(final_ui);
     return 0;
 }
-
-
