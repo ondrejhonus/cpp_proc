@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <signal.h>
 
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/screen_interactive.hpp"
@@ -14,40 +15,64 @@ using namespace ftxui;
 
 auto button_style = ButtonOption::Animated();
 bool modal_shown = false;
+cpm proc_man;
 
-// Definition of the main component. The details are not important.
-Component MainComponent(std::function<void()> show_modal,
-                        std::function<void()> exit)
+/*
+    SIGHUP		1	// Hangup.
+    SIGINT		2	// Interactive attention signal.
+    SIGQUIT		3	// Quit.
+    SIGILL		4	// Illegal instruction.
+    SIGTRAP		5	// Trace/breakpoint trap.
+    SIGABRT		6	// Abnormal termination.
+    SIGBUS		7	// Bus error.
+    SIGFPE		8	// Erroneous arithmetic operation.
+    SIGKILL		9	// Killed.
+    SIGUSR1		10	// User-defined signal 1.
+    SIGSEGV		11	// Invalid access to storage.
+    SIGUSR2		12	// User-defined signal 2.
+    SIGPIPE		13	// Broken pipe.
+    SIGALRM		14	// Alarm clock.
+    SIGTERM		15	// Termination request.
+*/
+
+Component ModalComponent(
+                        std::function<void()> sighup,
+                        std::function<void()> sigint,
+                        std::function<void()> sigquit,
+                        std::function<void()> sigill,
+                        std::function<void()> sigtrap,
+                        std::function<void()> sigabrt,
+                        std::function<void()> sigbus,
+                        std::function<void()> sigfpe,
+                        std::function<void()> sigkill,
+                        std::function<void()> sigusr1,
+                        std::function<void()> sigegv,
+                        std::function<void()> sigusr2,
+                        std::function<void()> sigpipe,
+                        std::function<void()> sigalrm,
+                        std::function<void()> sigterm,
+                        std::function<void()> hide_modal
+                        )
 {
     auto component = Container::Vertical({
-        Button("Show modal", show_modal, button_style),
-        Button("Quit", exit, button_style),
-    });
-    // Polish how the two buttons are rendered:
-    component |= Renderer([&](Element inner)
-                          {
-                              return vbox({
-                                         text("Main component"),
-                                         separator(),
-                                         inner,
-                                     })                               //
-                                     | size(WIDTH, GREATER_THAN, 15)  //
-                                     | size(HEIGHT, GREATER_THAN, 15) //
-                                     | border                         //
-                                     | center;                        //
-                          });
-    return component;
-}
+        Button("[0] Cancel", hide_modal, button_style),
+        Button("[1] SIGHUP", sighup, button_style),
+        Button("[2] SIGINT", sigint, button_style),
+        Button("[3] SIGQUIT", sigquit, button_style),
+        Button("[4] SIGILL", sigill, button_style),
+        Button("[5] SIGTRAP", sigtrap, button_style),
+        Button("[6] SIGABRT", sigabrt, button_style),
+        Button("[7] SIGBUS", sigbus, button_style),
+        Button("[8] SIGFPE", sigfpe, button_style),
+        Button("[9] SIGKILL", sigkill, button_style),
+        Button("[10] SIGUSR1", sigusr1, button_style),
+        Button("[11] SIGUSEGV", sigegv, button_style),
+        Button("[12] SIGUSR2", sigusr2, button_style),
+        Button("[13] SIGPIPE", sigpipe, button_style),
+        Button("[14] SIGALRM", sigalrm, button_style),
+        Button("[15] SIGTERM", sigterm, button_style),
 
-// Definition of the modal component. The details are not important.
-Component ModalComponent(std::function<void()> do_nothing,
-                         std::function<void()> hide_modal)
-{
-    auto component = Container::Vertical({
-        Button("Do nothing", do_nothing, button_style),
-        Button("Quit modal", hide_modal, button_style),
     });
-    // Polish how the two buttons are rendered:
     component |= Renderer([&](Element inner)
                           {
                               return vbox({
@@ -61,9 +86,18 @@ Component ModalComponent(std::function<void()> do_nothing,
     return component;
 }
 
+int pidof_selected(int selected_row)
+{
+    auto procs = proc_man.get_all_proc();
+    return procs[selected_row].pid;
+}
+
+void handle_proc_kill(int selected_row) {
+    
+}
+
 int ui::draw_ui()
 {
-    cpm manager;
     auto screen = ScreenInteractive::Fullscreen();
 
     int selected_row = 0;
@@ -71,7 +105,7 @@ int ui::draw_ui()
 
     auto table_content = Renderer([&]()
                                   {
-        auto procs = manager.get_all_proc();
+        auto procs = proc_man.get_all_proc();
         total_rows = procs.size();
 
         std::vector<std::vector<std::string>> rows;
@@ -131,11 +165,27 @@ int ui::draw_ui()
     { modal_shown = true; };
     auto hide_modal = [&]
     { modal_shown = false; };
+    auto sighup = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGHUP);};
+    auto sigint = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGINT);};
+    auto sigquit = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGQUIT);};
+    auto sigill = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGILL);};
+    auto sigtrap = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGTRAP);};
+    auto sigabrt = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGABRT);};
+    auto sigbus = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGBUS);};
+    auto sigfpe = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGFPE);};
+    auto sigkill = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGKILL);};
+    auto sigusr1 = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGUSR1);};
+    auto sigev = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGSEGV);};
+    auto sigusr2 = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGUSR2);};
+    auto sigpipe = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGPIPE);};
+    auto sigalrm = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGALRM);};
+    auto sigterm = [&] {proc_man.kill_proc(pidof_selected(selected_row), SIGTERM);};
+
     auto exit = screen.ExitLoopClosure();
     auto do_nothing = [&] {};
 
     Component final_ui = layout;
-    auto modal_component = ModalComponent(do_nothing, hide_modal);
+    auto modal_component = ModalComponent(sighup, sigint, sigquit, sigill, sigtrap, sigabrt, sigbus, sigfpe, sigkill, sigusr1, sigev, sigusr2, sigpipe, sigalrm, sigterm, hide_modal);
 
     final_ui |= Modal(modal_component, &modal_shown);
 

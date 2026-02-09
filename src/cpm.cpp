@@ -60,22 +60,6 @@ void cpm::print_table(const std::vector<Proc> &ps)
 
 bool cpm::kill_proc(int pid, int sig)
 {
-    // #define	SIGHUP		1	/* Hangup.  */
-    // #define	SIGINT		2	/* Interactive attention signal.  */
-    // #define	SIGQUIT		3	/* Quit.  */
-    // #define	SIGILL		4	/* Illegal instruction.  */
-    // #define	SIGTRAP		5	/* Trace/breakpoint trap.  */
-    // #define	SIGABRT		6	/* Abnormal termination.  */
-    // #define SIGBUS		 7	/* Bus error.  */
-    // #define	SIGFPE		8	/* Erroneous arithmetic operation.  */
-    // #define	SIGKILL		9	/* Killed.  */
-    // #define SIGUSR1		10	/* User-defined signal 1.  */
-    // #define	SIGSEGV		11	/* Invalid access to storage.  */
-    // #define SIGUSR2		12	/* User-defined signal 2.  */
-    // #define	SIGPIPE		13	/* Broken pipe.  */
-    // #define	SIGALRM		14	/* Alarm clock.  */
-    // #define	SIGTERM		15	/* Termination request.  */
-
     if (sig > 0 && sig <= 15) {
         return kill(pid, sig) == 0;
     }
