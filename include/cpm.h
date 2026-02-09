@@ -19,6 +19,7 @@ public:
 
     std::vector<Proc> get_all_proc();
     void print_table(const std::vector<Proc>& ps);
+    bool kill_proc(int pid, int sig);
 
 private:
     bool is_num(std::string& name);
