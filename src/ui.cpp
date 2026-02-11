@@ -8,6 +8,7 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 #include "ftxui/dom/table.hpp"
+#include "ftxui/component/captured_mouse.hpp"
 
 #include "../include/cpm.h"
 
@@ -52,8 +53,7 @@ Component ModalComponent(
                         std::function<void()> sigalrm,
                         std::function<void()> sigterm,
                         std::function<void()> hide_modal
-                        )
-{
+                        ) {
     auto component = Container::Vertical({
         Button("[0] Cancel", hide_modal, button_style),
         Button("[1] SIGHUP", sighup, button_style),
@@ -76,12 +76,11 @@ Component ModalComponent(
     component |= Renderer([&](Element inner)
                           {
                               return vbox({
-                                         text("Modal component "),
+                                         text("Select signal to send:") | center | bold,
                                          separator(),
                                          inner,
                                      })                              //
-                                     | size(WIDTH, GREATER_THAN, 30) //
-                                     | border;                       //
+                                     | size(WIDTH, GREATER_THAN, 30) | frame | vscroll_indicator | size(HEIGHT, LESS_THAN, 30) | border; 
                           });
     return component;
 }
@@ -134,6 +133,7 @@ int ui::draw_ui()
             table.SelectRow(selected_row).DecorateCells(inverted);
 
             table.SelectRow(selected_row).Decorate(focus);
+            table.SelectRow(selected_row).Decorate(focusCursorBlock);
         }
 
         return table.Render() | vscroll_indicator | yframe | flex; });
@@ -185,15 +185,19 @@ int ui::draw_ui()
     auto do_nothing = [&] {};
 
     Component final_ui = layout;
-    auto modal_component = ModalComponent(sighup, sigint, sigquit, sigill, sigtrap, sigabrt, sigbus, sigfpe, sigkill, sigusr1, sigev, sigusr2, sigpipe, sigalrm, sigterm, hide_modal);
+    auto modal_component = ModalComponent(hide_modal, sighup, sigint, sigquit, sigill, sigtrap, sigabrt, sigbus, sigfpe, sigkill, sigusr1, sigev, sigusr2, sigpipe, sigalrm, sigterm);
 
     final_ui |= Modal(modal_component, &modal_shown);
 
-    // Catch events on the composed UI:
+    // keybinds
     final_ui = CatchEvent(final_ui, [&](Event event)
                           {
-        if (event == Event::Character('q'))
+        if (event == Event::Character('q') || event == Event::Escape)
         {
+            if (modal_shown){
+                modal_shown = false;
+                return true;
+            }
             screen.Exit();
             return true;
         }
@@ -215,11 +219,8 @@ int ui::draw_ui()
             selected_row++;
             return true;
         }
-        // else -> default
-        else
-        {
-            return false;
-        }
+        // default behav.
+        return false;
         }
 
         if (event == Event::Character('k')) {
