@@ -13,6 +13,7 @@ add_executable(cpp_proc
     src/main.cpp 
     src/cpm.cpp 
     src/ui.cpp
+    src/sort.cpp
 )
 
 target_include_directories(cpp_proc PRIVATE include)

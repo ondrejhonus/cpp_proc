@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "../include/cpm.h"
-#include "../include/ui.h"
+#include "cpm.hpp"
+#include "ui.hpp"
 
 int main(int, char**){
     // cpm manager;

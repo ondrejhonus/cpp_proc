@@ -1,4 +1,4 @@
-#include "ui.h"
+#include "ui.hpp"
 #include <memory>
 #include <string>
 #include <vector>
@@ -10,13 +10,18 @@
 #include "ftxui/dom/table.hpp"
 #include "ftxui/component/captured_mouse.hpp"
 
-#include "../include/cpm.h"
+#include "cpm.hpp"
+#include "sort.hpp"
 
 using namespace ftxui;
 
 auto button_style = ButtonOption::Animated();
 bool modal_shown = false;
+std::string sorting_method = "pid";
+bool sorting_is_asc = true;
 cpm proc_man;
+auto procs = proc_man.get_all_proc(sorting_method, sorting_is_asc);
+
 
 /*
     SIGHUP		1	// Hangup.
@@ -85,12 +90,8 @@ Component ModalComponent(
 
 int pidof_selected(int selected_row)
 {
-    auto procs = proc_man.get_all_proc();
+    procs = proc_man.get_all_proc(sorting_method, sorting_is_asc);
     return procs[selected_row].pid;
-}
-
-void handle_proc_kill(int selected_row)
-{
 }
 
 int ui::draw_ui()
@@ -105,7 +106,7 @@ int ui::draw_ui()
 
     auto table_content = Renderer([&]()
                                   {
-        auto procs = proc_man.get_all_proc();
+        procs = proc_man.get_all_proc(sorting_method, sorting_is_asc);
         total_rows = procs.size();
 
         std::vector<std::vector<std::string>> rows;
@@ -147,6 +148,23 @@ int ui::draw_ui()
             }
             table.SelectCell(selected_col, 0).Decorate(inverted);
             table.SelectCell(selected_col,0).Decorate(focus);
+            // sorting
+            switch (selected_col)
+            {
+            case 0:
+                // PID
+                sorting_method = "pid";
+                // post event so ftxui updates
+                screen.PostEvent(Event::Custom);
+                break;
+            case 1:
+                // NAME
+                sorting_method = "name";
+                screen.PostEvent(Event::Custom);
+                break;
+            default:
+                break;
+            }
         }
 
 
