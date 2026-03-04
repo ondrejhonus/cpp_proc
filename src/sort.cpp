@@ -55,6 +55,12 @@ std::vector<cpm::Proc> sorting::get_sorted_procs(std::vector<cpm::Proc>& process
                     else if (!is_asc && processes[j].state < processes[j + 1].state)
                         std::swap(processes[j], processes[j + 1]);
                     break;
+            case Command::mem:
+                if (is_asc && processes[j].memory > processes[j + 1].memory)
+                    std::swap(processes[j], processes[j + 1]);
+                else if (!is_asc && processes[j].memory < processes[j + 1].memory)
+                    std::swap(processes[j], processes[j + 1]);
+                break;  
             default:
                 break;
             }

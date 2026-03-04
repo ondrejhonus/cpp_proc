@@ -140,7 +140,6 @@ int ui::draw_ui()
         table.SelectColumns(0, 3).Decorate(flex_grow);
 
         if (total_rows > 0) {
-            // Make sure selected_row is at least 1 to skip header row
             selected_row = std::max(0, std::min(selected_row, total_rows + 1));
             if (selected_row != 0){
             table.SelectRow(selected_row).DecorateCells(inverted);
@@ -158,10 +157,20 @@ int ui::draw_ui()
                 screen.PostEvent(Event::Custom);
                 break;
             case 1:
-                // NAME
+                // name
                 sorting_method = "name";
                 screen.PostEvent(Event::Custom);
                 break;
+            case 2:
+                // state
+                sorting_method = "state";
+                screen.PostEvent(Event::Custom);
+                break;  
+            case 3:
+                // mem
+                sorting_method = "mem";
+                screen.PostEvent(Event::Custom);
+                break;              
             default:
                 break;
             }
@@ -294,6 +303,11 @@ int ui::draw_ui()
         }
         if (event == Event::PageUp) {
             selected_row = 1;
+            return true;
+        }
+        if (event == Event::Return && !modal_shown) {
+            sorting_is_asc = !sorting_is_asc;
+            screen.PostEvent(Event::Custom);
             return true;
         }
 
