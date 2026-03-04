@@ -4,12 +4,6 @@
 #include <vector>
 #include <signal.h>
 
-#include "ftxui/component/component.hpp"
-#include "ftxui/component/screen_interactive.hpp"
-#include "ftxui/dom/elements.hpp"
-#include "ftxui/dom/table.hpp"
-#include "ftxui/component/captured_mouse.hpp"
-
 #include "cpm.hpp"
 #include "sort.hpp"
 
@@ -102,7 +96,7 @@ int ui::draw_ui()
     int total_rows = 0;
 
     int selected_col = 2;
-    const int total_cols = 4;
+    const int total_cols = 5;
 
     auto table_content = Renderer([&]()
                                   {
@@ -116,7 +110,9 @@ int ui::draw_ui()
                     "[PID]",
                     "[NAME]",
                     "[STATE]",
-                    "[MEMORY]"
+                    "[MEMORY]",
+                    "[CPU%]"
+
                 });
             }
             const auto& p = procs[i];
@@ -124,7 +120,8 @@ int ui::draw_ui()
                 std::to_string(p.pid), 
                 p.name, 
                 p.state, 
-                std::to_string(p.memory) + " KB"
+                std::to_string(p.memory) + " KB",
+                std::to_string(p.cpu_percent) + " %"
             });
         }
 
@@ -137,7 +134,7 @@ int ui::draw_ui()
         table.SelectRow(0).Decorate(bold);
         table.SelectRow(0).SeparatorVertical(LIGHT);
 
-        table.SelectColumns(0, 3).Decorate(flex_grow);
+        table.SelectColumns(0, total_cols - 1).Decorate(flex_grow);
 
         if (total_rows > 0) {
             selected_row = std::max(0, std::min(selected_row, total_rows + 1));
@@ -248,8 +245,14 @@ int ui::draw_ui()
 
     // keybinds
     final_ui = CatchEvent(final_ui, [&](Event event)
-                          {
-        if (event == Event::Character('q') || event == Event::Escape)
+                         { return handle_events(event, selected_row, selected_col, total_rows, total_cols, modal_shown, show_modal, hide_modal, screen); });
+
+    screen.Loop(final_ui);
+    return 0;
+}
+
+bool ui::handle_events(Event event, int& selected_row, int& selected_col, int total_rows, int total_cols, bool& modal_shown, std::function<void()> show_modal, std::function<void()> hide_modal, ScreenInteractive& screen) {
+    if (event == Event::Character('q') || event == Event::Escape)
         {
             if (modal_shown){
                 modal_shown = false;
@@ -311,8 +314,5 @@ int ui::draw_ui()
             return true;
         }
 
-        return false; });
-
-    screen.Loop(final_ui);
-    return 0;
+        return false; 
 }

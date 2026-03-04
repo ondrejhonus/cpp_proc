@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <chrono>
 
 #pragma once
 
@@ -16,6 +17,13 @@ public:
         std::string name;
         std::string state;
         long memory; // Format: XXXX kB, remove " kB" before saving
+        double cpu_percent;
+    };
+
+    // for keeping check with a process to calculate CPU usage
+    struct ProcessState {
+        unsigned long long total_ticks = 0;
+        std::chrono::steady_clock::time_point last_read_time;
     };
 
     std::vector<Proc> get_all_proc(std::string method, bool is_asc);
@@ -25,5 +33,6 @@ public:
 private:
     bool is_num(std::string& name);
     Proc parse_proc_data(std::string& pid);
+    double calculate_cpu_usage(int pid);
 };
 
