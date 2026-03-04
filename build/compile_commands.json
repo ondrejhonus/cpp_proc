@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/home/qwertilla/Documents/GitHub/cpp_proc/build",
-  "command": "/usr/bin/c++   -g -o CMakeFiles/cpp_proc.dir/main.cpp.o -c /home/qwertilla/Documents/GitHub/cpp_proc/main.cpp",
-  "file": "/home/qwertilla/Documents/GitHub/cpp_proc/main.cpp",
-  "output": "CMakeFiles/cpp_proc.dir/main.cpp.o"
-}
-]

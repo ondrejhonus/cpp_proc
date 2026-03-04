@@ -5,13 +5,17 @@
 #include <sstream>
 #include <iomanip>
 
-#include "../include/cpm.h"
+#include "cpm.hpp"
+#include "sort.hpp"
+#include <signal.h>
+#include <sys/types.h>
 
 using std::string;
 
-std::vector<cpm::Proc> cpm::get_all_proc()
+std::vector<cpm::Proc>cpm::get_all_proc(std::string method, bool is_asc)
 {
     std::vector<cpm::Proc> procs;
+    sorting sorter;
     for (const auto &entry : std::filesystem::directory_iterator("/proc"))
     {
         if (!entry.is_directory())
@@ -26,7 +30,8 @@ std::vector<cpm::Proc> cpm::get_all_proc()
         cpm::Proc proc = parse_proc_data(filename);
         procs.push_back(proc);
     }
-    return procs;
+    auto sorted_procs = sorter.get_sorted_procs(procs, method, is_asc);
+    return sorted_procs;
 }
 
 void cpm::print_table(const std::vector<Proc> &ps)
@@ -53,6 +58,14 @@ void cpm::print_table(const std::vector<Proc> &ps)
                   << std::right << std::setw(memWidth) << proc.memory
                   << std::endl;
     }
+}
+
+bool cpm::kill_proc(int pid, int sig)
+{
+    if (sig > 0 && sig <= 15) {
+        return kill(pid, sig) == 0;
+    }
+    return false;
 }
 
 bool cpm::is_num(string &name)
