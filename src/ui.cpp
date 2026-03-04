@@ -95,7 +95,7 @@ int ui::draw_ui()
     int selected_row = 0;
     int total_rows = 0;
 
-    int selected_col = 2;
+    int selected_col = 0;
     const int total_cols = 5;
 
     auto table_content = Renderer([&]()
@@ -112,7 +112,6 @@ int ui::draw_ui()
                     "[STATE]",
                     "[MEMORY]",
                     "[CPU%]"
-
                 });
             }
             const auto& p = procs[i];
@@ -134,7 +133,7 @@ int ui::draw_ui()
         table.SelectRow(0).Decorate(bold);
         table.SelectRow(0).SeparatorVertical(LIGHT);
 
-        table.SelectColumns(0, total_cols - 1).Decorate(flex_grow);
+         table.SelectColumns(0, total_cols - 1).Decorate(flex_grow);
 
         if (total_rows > 0) {
             selected_row = std::max(0, std::min(selected_row, total_rows + 1));
@@ -151,23 +150,23 @@ int ui::draw_ui()
                 // PID
                 sorting_method = "pid";
                 // post event so ftxui updates
-                screen.PostEvent(Event::Custom);
                 break;
             case 1:
                 // name
                 sorting_method = "name";
-                screen.PostEvent(Event::Custom);
                 break;
             case 2:
                 // state
                 sorting_method = "state";
-                screen.PostEvent(Event::Custom);
                 break;  
             case 3:
                 // mem
                 sorting_method = "mem";
-                screen.PostEvent(Event::Custom);
-                break;              
+                break;     
+            case 4:
+                // cpu
+                sorting_method = "cpu";
+                break;         
             default:
                 break;
             }
@@ -176,23 +175,8 @@ int ui::draw_ui()
 
         return table.Render() | vscroll_indicator | yframe | flex; });
 
-    auto header_content = Renderer([&]
-                                   {
-         std::vector<std::vector<std::string>> header_data;
-         header_data.push_back({
-            " [PID] ", 
-            "               [NAME] ", 
-            "                [STATE] ", 
-            " [MEMORY] "
-        });
-         auto table = Table(header_data);
-         table.SelectRow(0).Decorate(bold);
-         return table.Render(); });
-
     auto layout = Renderer(table_content, [&]
                            { return vbox({text("CPM - Task Manager") | center | bold,
-                                          separator(),
-                                          header_content->Render(),
                                           separator(),
                                           table_content->Render() | flex,
                                           separator(),

@@ -14,6 +14,7 @@ enum class Command {
     name,
     state,
     mem,
+    cpu,
     err
 };
 
@@ -22,8 +23,8 @@ Command resolve_cmd(const std::string& str){
     if (str == "name") return Command::name;
     if (str == "state") return Command::state;
     if (str == "mem") return Command::mem;
+    if (str == "cpu") return Command::cpu;
     return Command::pid;
-    
 }
 
 
@@ -61,8 +62,12 @@ std::vector<cpm::Proc> sorting::get_sorted_procs(std::vector<cpm::Proc>& process
                 else if (!is_asc && processes[j].memory < processes[j + 1].memory)
                     std::swap(processes[j], processes[j + 1]);
                 break;  
-            default:
-                break;
+            case Command::cpu:
+                if (is_asc && processes[j].cpu_percent > processes[j + 1].cpu_percent)
+                    std::swap(processes[j], processes[j + 1]);
+                else if (!is_asc && processes[j].cpu_percent < processes[j + 1].cpu_percent)
+                    std::swap(processes[j], processes[j + 1]);
+                break;  
             }
        }  
     }
