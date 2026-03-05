@@ -14,6 +14,7 @@ add_executable(cpp_proc
     src/cpm.cpp 
     src/ui.cpp
     src/sort.cpp
+    src/sysinfo.cpp
 )
 
 target_include_directories(cpp_proc PRIVATE include)
