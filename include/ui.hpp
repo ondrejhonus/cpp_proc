@@ -18,4 +18,5 @@ private:
         int total_rows, int total_cols, bool& modal_shown, std::function<void()> show_modal, 
         std::function<void()> hide_modal, ftxui::ScreenInteractive& screen);
 
+    void async_post_event(ftxui::Event event);
 };

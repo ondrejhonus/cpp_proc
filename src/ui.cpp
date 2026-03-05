@@ -127,13 +127,12 @@ int ui::draw_ui()
         auto table = Table(rows);
         table.SelectAll().Border(LIGHT);
         table.SelectAll().Separator(LIGHT);
-
         table.SelectAll().DecorateCells(center);
-
         table.SelectRow(0).Decorate(bold);
         table.SelectRow(0).SeparatorVertical(LIGHT);
 
-         table.SelectColumns(0, total_cols - 1).Decorate(flex_grow);
+        // flex size on all columnds based on terminal size
+        table.SelectColumns(0, total_cols - 1).Decorate(flex_grow);
 
         if (total_rows > 0) {
             selected_row = std::max(0, std::min(selected_row, total_rows + 1));
@@ -143,35 +142,26 @@ int ui::draw_ui()
             }
             table.SelectCell(selected_col, 0).Decorate(inverted);
             table.SelectCell(selected_col,0).Decorate(focus);
-            // sorting
+
             switch (selected_col)
             {
             case 0:
-                // PID
                 sorting_method = "pid";
-                // post event so ftxui updates
                 break;
             case 1:
-                // name
                 sorting_method = "name";
                 break;
             case 2:
-                // state
                 sorting_method = "state";
-                break;  
+                break;
             case 3:
-                // mem
                 sorting_method = "mem";
                 break;     
             case 4:
-                // cpu
                 sorting_method = "cpu";
-                break;         
-            default:
                 break;
             }
         }
-
 
         return table.Render() | vscroll_indicator | yframe | flex; });
 
@@ -230,7 +220,7 @@ int ui::draw_ui()
     // keybinds
     final_ui = CatchEvent(final_ui, [&](Event event)
                          { return handle_events(event, selected_row, selected_col, total_rows, total_cols, modal_shown, show_modal, hide_modal, screen); });
-
+    
     screen.Loop(final_ui);
     return 0;
 }
@@ -258,13 +248,15 @@ bool ui::handle_events(Event event, int& selected_row, int& selected_col, int to
         if (event == Event::l || event == Event::ArrowRight) {
             if (selected_col <= total_cols - 1) {
                 selected_col++;
+                async_post_event(Event::Custom);
                 return true;
             }
             return false;
         }
-         if (event == Event::j || event == Event::ArrowLeft) {
+         if (event == Event::h || event == Event::ArrowLeft) {
             if (selected_col >= 0) {
                 selected_col--;
+                async_post_event(Event::Custom);
                 return true;
             }
             return false;
@@ -299,4 +291,11 @@ bool ui::handle_events(Event event, int& selected_row, int& selected_col, int to
         }
 
         return false; 
+}
+
+void ui::async_post_event(Event event) {
+    std::thread([event] {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        ScreenInteractive::Active()->PostEvent(event);
+    }).detach();
 }

@@ -16,11 +16,10 @@ public:
         int pid;
         std::string name;
         std::string state;
-        long memory; // Format: XXXX kB, remove " kB" before saving
+        long memory;
         double cpu_percent;
     };
 
-    // for keeping check with a process to calculate CPU usage
     struct ProcessState {
         unsigned long long total_ticks = 0;
         std::chrono::steady_clock::time_point last_read_time;
@@ -33,6 +32,6 @@ public:
 private:
     bool is_num(std::string& name);
     Proc parse_proc_data(std::string& pid);
-    double calculate_cpu_usage(int pid);
+    double get_cpu_percent(int pid);
 };
 

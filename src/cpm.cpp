@@ -124,8 +124,8 @@ cpm::Proc cpm::parse_proc_data(string &pid)
             proc.state = state;
         }
         // cpu usage
-        proc.cpu_percent = calculate_cpu_usage(proc.pid);
     }
+    proc.cpu_percent = get_cpu_percent(proc.pid);
     return proc;
 }
 
@@ -152,7 +152,7 @@ unsigned long long get_process_ticks(int pid) {
     return utime + stime;
 }
 
-double cpm::calculate_cpu_usage(int pid) {
+double cpm::get_cpu_percent(int pid) {
     unsigned long long current_ticks = get_process_ticks(pid);
     auto current_time = std::chrono::steady_clock::now();
 
@@ -171,6 +171,9 @@ double cpm::calculate_cpu_usage(int pid) {
     long hertz = sysconf(_SC_CLK_TCK);
 
     double cpu_usage = (static_cast<double>(tick_diff) / hertz) / elapsed.count() * 100.0;
+
+    long num_of_cores = sysconf(_SC_NPROCESSORS_ONLN);
+    cpu_usage /= num_of_cores;
 
     state.total_ticks = current_ticks;
     state.last_read_time = current_time;
