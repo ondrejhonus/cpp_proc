@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "keybinds.hpp"
 #include "manager.hpp"
 #include "sort.hpp"
 
@@ -13,13 +14,12 @@ using namespace ftxui;
 
 #define TOTAL_COLS 5
 
-bool sorting_is_asc = true;
 bool modal_shown = false;
 
-std::string sorting_method = "pid";
 ui::TableInfo table_info;
 ProcessManager process_manager;
-auto processes = process_manager.get_all_proc(sorting_method, sorting_is_asc);
+auto processes = process_manager.get_all_proc(table_info.sorting_method,
+                                              table_info.sorting_is_asc);
 
 /*
     SIGHUP		1	// Hangup.
@@ -72,7 +72,8 @@ Component ModalComponent(ui::ModalOptions options) {
 }
 
 int pidof_selected(int selected_row) {
-  processes = process_manager.get_all_proc(sorting_method, sorting_is_asc);
+  processes = process_manager.get_all_proc(table_info.sorting_method,
+                                           table_info.sorting_is_asc);
   return processes[selected_row].pid;
 }
 
@@ -146,81 +147,12 @@ int ui::draw_ui() {
 
   // keybinds
   final_ui = CatchEvent(final_ui, [&](Event event) {
-    return handle_events(event, table_info, TOTAL_COLS, modal_shown, show_modal,
-                         hide_modal, screen);
+    return keybinds::handle_events(event, table_info, TOTAL_COLS, modal_shown,
+                                   show_modal, hide_modal, screen);
   });
 
   screen.Loop(final_ui);
   return 0;
-}
-
-bool ui::handle_events(Event event, TableInfo& table_info, int total_cols,
-                       bool& modal_shown, std::function<void()> show_modal,
-                       std::function<void()> hide_modal,
-                       ScreenInteractive& screen) {
-  if (event == Event::Character('q') || event == Event::Escape) {
-    if (modal_shown) {
-      modal_shown = false;
-      return true;
-    }
-    screen.Exit();
-    return true;
-  }
-
-  if (event == Event::ArrowUp || event == Event::k ||
-      (event.is_mouse() && event.mouse().button == Mouse::WheelUp)) {
-    if (table_info.selected_row > 0 && !modal_shown) {
-      table_info.selected_row--;
-      return true;
-    }
-    return false;
-  }
-  if (event == Event::l || event == Event::ArrowRight) {
-    if (table_info.selected_col <= TOTAL_COLS - 1) {
-      table_info.selected_col++;
-      async_post_event(Event::Custom);
-      return true;
-    }
-    return false;
-  }
-  if (event == Event::h || event == Event::ArrowLeft) {
-    if (table_info.selected_col >= 0) {
-      table_info.selected_col--;
-      async_post_event(Event::Custom);
-      return true;
-    }
-    return false;
-  }
-  if (event == Event::ArrowDown || event == Event::j ||
-      (event.is_mouse() && event.mouse().button == Mouse::WheelDown)) {
-    if (table_info.selected_row < table_info.total_rows - 1 && !modal_shown) {
-      table_info.selected_row++;
-      return true;
-    }
-    // default behav.
-    return false;
-  }
-
-  if (event == Event::K) {
-    modal_shown == true ? hide_modal() : show_modal();
-    return true;
-  }
-  if (event == Event::PageDown) {
-    table_info.selected_row = table_info.total_rows;
-    return true;
-  }
-  if (event == Event::PageUp) {
-    table_info.selected_row = 1;
-    return true;
-  }
-  if (event == Event::Return ||
-      event == Event::Character(' ') && !modal_shown) {
-    sorting_is_asc = !sorting_is_asc;
-    screen.PostEvent(Event::Custom);
-    return true;
-  }
-
-  return false;
 }
 
 void ui::async_post_event(Event event) {
@@ -233,7 +165,8 @@ void ui::async_post_event(Event event) {
 ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
                                   ui::TableInfo& table_info) {
   return Renderer([&]() {
-    processes = process_manager.get_all_proc(sorting_method, sorting_is_asc);
+    processes = process_manager.get_all_proc(table_info.sorting_method,
+                                             table_info.sorting_is_asc);
     table_info.total_rows = processes.size();
     std::vector<std::vector<std::string>> rows;
     for (int i = 0; i < table_info.total_rows; ++i) {
@@ -268,19 +201,19 @@ ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
 
       switch (table_info.selected_col) {
         case 0:
-          sorting_method = "pid";
+          table_info.sorting_method = "pid";
           break;
         case 1:
-          sorting_method = "name";
+          table_info.sorting_method = "name";
           break;
         case 2:
-          sorting_method = "state";
+          table_info.sorting_method = "state";
           break;
         case 3:
-          sorting_method = "mem";
+          table_info.sorting_method = "mem";
           break;
         case 4:
-          sorting_method = "cpu";
+          table_info.sorting_method = "cpu";
           break;
       }
     }

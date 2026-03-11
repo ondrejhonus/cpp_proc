@@ -39,15 +39,12 @@ class ui {
     int selected_row = 0;
     int selected_col = 0;
     int total_rows = 0;
+    std::string sorting_method = "pid";
+    bool sorting_is_asc = true;
   };
+  static void async_post_event(ftxui::Event event);
 
  private:
-  bool handle_events(ftxui::Event event, TableInfo& table_info, int total_cols,
-                     bool& modal_shown, std::function<void()> show_modal,
-                     std::function<void()> hide_modal,
-                     ftxui::ScreenInteractive& screen);
   ftxui::Component create_table(std::vector<ProcessManager::Proc>& procs,
                                 ui::TableInfo& table_info);
-
-  void async_post_event(ftxui::Event event);
 };

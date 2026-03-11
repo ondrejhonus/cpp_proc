@@ -1,20 +1,18 @@
 # C++ Process Manager (CPM)
 
-For now, this is just a program, that lists all the running processes on a Linux system.
-Later, it will be more similar to a task manager like htop.
+An `htop`-like process manager made in `C++` using the `ftxui` library for TUI functionality.
 
 ## Functions
 
 - See all running processes
-- See the processes' PID, name, state, memory usage
-- See the process states (Sleeping, Running, Zombie)
-- Send a SIGnal to kill or controll a specific process
+- See the processes' PID, name, state, memory usage, CPU usage
+- See the process states (Sleeping, Running, Zombie...)
+- Send a SIGnal to kill or control a specific process
+- Order processes by PID, name, state, memory usage or CPU usage
 
 ## TO-DO
 
-- CPU usage
-- Order processes by other factors than PID
-- Search by several factors
+- Search
 - Filters
 
 ## Compilation and Execution

@@ -15,6 +15,7 @@ add_executable(cpm
     src/ui.cpp
     src/sort.cpp
     src/sysinfo.cpp
+    src/keybinds.cpp
 )
 
 target_include_directories(cpm PRIVATE include)
