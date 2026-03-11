@@ -138,7 +138,10 @@ int ui::draw_ui() {
   auto exit = screen.ExitLoopClosure();
 
   Component final_ui = layout;
-  ui::ModalOptions modal_options;
+  ui::ModalOptions modal_options = {sighup,  sigint,  sigquit, sigill,
+                                    sigtrap, sigabrt, sigbus,  sigfpe,
+                                    sigkill, sigusr1, sigev,   sigusr2,
+                                    sigpipe, sigalrm, sigterm, hide_modal};
   auto modal_component = ModalComponent(modal_options);
 
   final_ui |= Modal(modal_component, &modal_shown);
