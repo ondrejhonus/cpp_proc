@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(cpp_proc VERSION 0.1.0 LANGUAGES C CXX)
+project(cpm VERSION 0.1.0 LANGUAGES C CXX)
 
 
 include(FetchContent)
@@ -9,17 +9,17 @@ FetchContent_Declare(ftxui
 )
 FetchContent_MakeAvailable(ftxui)
 
-add_executable(cpp_proc 
+add_executable(cpm 
     src/main.cpp 
-    src/cpm.cpp 
+    src/manager.cpp 
     src/ui.cpp
     src/sort.cpp
     src/sysinfo.cpp
 )
 
-target_include_directories(cpp_proc PRIVATE include)
+target_include_directories(cpm PRIVATE include)
 
-target_link_libraries(cpp_proc PRIVATE
+target_link_libraries(cpm PRIVATE
     ftxui::component
     ftxui::dom
     ftxui::screen

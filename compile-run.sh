@@ -2,4 +2,4 @@
 
 cmake -B build
 cmake --build build
-./build/cpp_proc
+./build/cpm
