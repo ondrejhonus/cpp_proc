@@ -12,6 +12,8 @@ An `htop`-like process manager made in `C++` using the `ftxui` library for TUI f
 
 ## TO-DO
 
+- Staticly define keybinds
+- Separate useless stuff into functions to bottoms of files
 - Search
 - Filters
 

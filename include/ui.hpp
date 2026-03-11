@@ -17,22 +17,22 @@ class ui {
       ftxui::ButtonOption::Animated();
 
   struct ModalOptions {
-    std::function<void()> sighup;
-    std::function<void()> sigint;
-    std::function<void()> sigquit;
-    std::function<void()> sigill;
-    std::function<void()> sigtrap;
-    std::function<void()> sigabrt;
-    std::function<void()> sigbus;
-    std::function<void()> sigfpe;
-    std::function<void()> sigkill;
-    std::function<void()> sigusr1;
-    std::function<void()> sigegv;
-    std::function<void()> sigusr2;
-    std::function<void()> sigpipe;
-    std::function<void()> sigalrm;
-    std::function<void()> sigterm;
-    std::function<void()> hide_modal;
+    const std::function<void()> sighup;
+    const std::function<void()> sigint;
+    const std::function<void()> sigquit;
+    const std::function<void()> sigill;
+    const std::function<void()> sigtrap;
+    const std::function<void()> sigabrt;
+    const std::function<void()> sigbus;
+    const std::function<void()> sigfpe;
+    const std::function<void()> sigkill;
+    const std::function<void()> sigusr1;
+    const std::function<void()> sigegv;
+    const std::function<void()> sigusr2;
+    const std::function<void()> sigpipe;
+    const std::function<void()> sigalrm;
+    const std::function<void()> sigterm;
+    const std::function<void()> hide_modal;
   };
 
   struct TableInfo {

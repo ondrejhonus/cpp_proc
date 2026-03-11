@@ -21,24 +21,6 @@ ProcessManager process_manager;
 auto processes = process_manager.get_all_proc(table_info.sorting_method,
                                               table_info.sorting_is_asc);
 
-/*
-    SIGHUP		1	// Hangup.
-    SIGINT		2	// Interactive attention signal.
-    SIGQUIT		3	// Quit.
-    SIGILL		4	// Illegal instruction.
-    SIGTRAP		5	// Trace/breakpoint trap.
-    SIGABRT		6	// Abnormal termination.
-    SIGBUS		7	// Bus error.
-    SIGFPE		8	// Erroneous arithmetic operation.
-    SIGKILL		9	// Killed.
-    SIGUSR1		10	// User-defined signal 1.
-    SIGSEGV		11	// Invalid access to storage.
-    SIGUSR2		12	// User-defined signal 2.
-    SIGPIPE		13	// Broken pipe.
-    SIGALRM		14	// Alarm clock.
-    SIGTERM		15	// Termination request.
-*/
-
 Component ModalComponent(ui::ModalOptions options) {
   auto component = Container::Vertical({
       Button("[0] Cancel", options.hide_modal, ui::button_style),
@@ -71,7 +53,7 @@ Component ModalComponent(ui::ModalOptions options) {
   return component;
 }
 
-int pidof_selected(int selected_row) {
+int get_pid_of_selected(int selected_row) {
   processes = process_manager.get_all_proc(table_info.sorting_method,
                                            table_info.sorting_is_asc);
   return processes[selected_row].pid;
@@ -83,7 +65,7 @@ int ui::draw_ui() {
   auto table_content = create_table(processes, table_info);
   auto layout = Renderer(table_content, [&] {
     return vbox({text("CPM - Task Manager") | center | bold, separator(),
-                 table_content->Render(), separator(),
+                 table_content->Render() | flex, separator(),
                  text("[q]uit | [Shift]+[k]ill process") | center}) |
            border;
   });
@@ -93,55 +75,71 @@ int ui::draw_ui() {
   auto hide_modal = [&] { modal_shown = false; };
 
   auto sighup = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGHUP);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGHUP);
   };
   auto sigint = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGINT);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGINT);
   };
   auto sigquit = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGQUIT);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGQUIT);
   };
   auto sigill = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGILL);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGILL);
   };
   auto sigtrap = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGTRAP);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGTRAP);
   };
   auto sigabrt = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGABRT);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGABRT);
   };
   auto sigbus = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGBUS);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGBUS);
   };
   auto sigfpe = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGFPE);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGFPE);
   };
   auto sigkill = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGKILL);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGKILL);
   };
   auto sigusr1 = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGUSR1);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGUSR1);
   };
   auto sigev = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGSEGV);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGSEGV);
   };
   auto sigusr2 = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGUSR2);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGUSR2);
   };
   auto sigpipe = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGPIPE);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGPIPE);
   };
   auto sigalrm = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGALRM);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGALRM);
   };
   auto sigterm = [&] {
-    process_manager.kill_proc(pidof_selected(table_info.selected_row), SIGTERM);
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+                              SIGTERM);
   };
 
   auto exit = screen.ExitLoopClosure();
 
   Component final_ui = layout;
-  auto modal_component = ModalComponent(ui::ModalOptions{});
+  ui::ModalOptions modal_options;
+  auto modal_component = ModalComponent(modal_options);
 
   final_ui |= Modal(modal_component, &modal_shown);
 

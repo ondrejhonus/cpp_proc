@@ -27,7 +27,7 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
     return false;
   }
   if (event == Event::l || event == Event::ArrowRight) {
-    if (table_info.selected_col <= total_cols - 1) {
+    if (table_info.selected_col < total_cols - 1) {
       table_info.selected_col++;
       ui::async_post_event(Event::Custom);
       return true;
@@ -35,7 +35,7 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
     return false;
   }
   if (event == Event::h || event == Event::ArrowLeft) {
-    if (table_info.selected_col >= 0) {
+    if (table_info.selected_col > 0) {
       table_info.selected_col--;
       ui::async_post_event(Event::Custom);
       return true;
@@ -64,8 +64,8 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
     table_info.selected_row = 1;
     return true;
   }
-  if (event == Event::Return ||
-      event == Event::Character(' ') && !modal_shown) {
+  if ((event == Event::Return || event == Event::Character(' ')) &&
+      !modal_shown) {
     table_info.sorting_is_asc = !table_info.sorting_is_asc;
     screen.PostEvent(Event::Custom);
     return true;
