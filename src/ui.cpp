@@ -17,9 +17,9 @@ using namespace ftxui;
 
 #define UPDATE_INTERVAL_MS 3000
 #define TOTAL_COLS 5
-#define BOTTOM_TEXT                                                            \
-  "[q]uit | [s]end signal | [T]erminate | [Return/Space] ASC/DESC | [PgUp/g] " \
-  "To Top | [PgUp/G] To Bottom"
+#define BOTTOM_TEXT                                                           \
+  "[q]uit | [s]end signal | [T]erminate | [Return/Space] ASC/DESC | [g] Top " \
+  "| [G] Bottom"
 
 bool modal_shown = false;
 std::atomic<bool> app_is_running{true};

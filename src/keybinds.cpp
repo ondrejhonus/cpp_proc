@@ -46,6 +46,15 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
     }
     return false;
   }
+  if (event == Event::g) {
+    reset_view(table_info, screen);
+    return true;
+  }
+  if (event == Event::G) {
+    table_info.selected_row = table_info.total_rows;
+    table_info.tracked_pid = processes[table_info.selected_row].pid;
+    return true;
+  }
 
   if (event == Event::s) {
     modal_shown == true ? hide_modal() : show_modal();
