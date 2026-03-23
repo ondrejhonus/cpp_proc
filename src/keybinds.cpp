@@ -64,6 +64,7 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
     if (table_info.selected_row >= 0 &&
         table_info.selected_row < processes.size()) {
       man.kill_proc(processes[table_info.selected_row].pid, SIGTERM);
+      screen.PostEvent(Event::Custom);
     }
     return true;
   }
