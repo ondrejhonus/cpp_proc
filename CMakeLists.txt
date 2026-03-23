@@ -25,3 +25,5 @@ target_link_libraries(cpm PRIVATE
     ftxui::dom
     ftxui::screen
 )
+
+install(TARGETS cpm DESTINATION bin)

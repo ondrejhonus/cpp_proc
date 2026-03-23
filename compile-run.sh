@@ -1,5 +1,5 @@
 #!/bin/bash
 
 cmake -B build
-cmake --build build
+make -C build -j$(nproc)
 ./build/cpm
