@@ -37,20 +37,25 @@ class ui {
   } ModalOptions;
 
   typedef struct {
-    int selected_row = 1;
-    int selected_col = 0;
+    int selected_row = 0;
+    int selected_col = 4;  // Default sorting method: CPU
     int tracked_pid = -1;
     int total_rows = 0;
-    std::string sorting_method = "pid";
-    bool sorting_is_asc = true;
+    std::string sorting_method;
+    bool sorting_is_asc = false;
   } TableInfo;
 
   static void async_post_event(ftxui::Event event);
   static void async_post_event_loop(ftxui::Event, unsigned int interval_ms);
 
  private:
-  ftxui::Component create_table(std::vector<ProcessManager::Proc>& procs,
+  ftxui::Component create_table(std::vector<ProcessManager::Proc>& processes,
                                 ui::TableInfo& table_info);
   ftxui::Component ModalComponent(ui::ModalOptions);
   void set_modal_entries(ui::ModalOptions& modal_options);
+
+  std::vector<std::string> menu_entries;
+  std::vector<std::string> header_entries = {"[PID]", "[NAME]", "[STATE]",
+                                             "[MEMORY]", "[CPU%]"};
+  ftxui::Component process_menu;
 };

@@ -1,18 +1,26 @@
+#include "keybinds.hpp"
+
 #include <signal.h>
 
-#include "keybinds.hpp"
-#include "ui.hpp"
 #include "manager.hpp"
+#include "ui.hpp"
 
 using namespace ftxui;
 
+void reset_view(ui::TableInfo& table_info, ftxui::ScreenInteractive& screen) {
+  table_info.selected_row = 0;
+  table_info.tracked_pid = -1;
+  screen.PostEvent(Event::Custom);
+}
+
 bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
                              const std::vector<ProcessManager::Proc>& processes,
-                             ProcessManager man,
-                             int total_cols, bool& modal_shown,
+                             ProcessManager man, int total_cols,
+                             bool& modal_shown,
                              std::function<void()> show_modal,
                              std::function<void()> hide_modal,
                              ftxui::ScreenInteractive& screen) {
+  // quit
   if (event == Event::Character('q') || event == Event::Escape) {
     if (modal_shown) {
       modal_shown = false;
@@ -22,76 +30,41 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
     return true;
   }
 
-  // UP
-  if (event == Event::ArrowUp || event == Event::k ||
-      (event.is_mouse() && event.mouse().button == Mouse::WheelUp)) {
-    if (table_info.selected_row > 1 && !modal_shown) {
-      table_info.selected_row--;
-      // dont follow row, follow pid
-      if (table_info.selected_row <= processes.size()) {
-        table_info.tracked_pid = processes[table_info.selected_row].pid;
-      }
-      return true;
-    }
-    return false;
-  }
-  // DOWN
-  if (event == Event::ArrowDown || event == Event::j ||
-      (event.is_mouse() && event.mouse().button == Mouse::WheelDown)) {
-    if (table_info.selected_row < table_info.total_rows && !modal_shown) {
-      table_info.selected_row++;
-      if (table_info.selected_row <= processes.size()) {
-        table_info.tracked_pid = processes[table_info.selected_row].pid;
-    }
-      return true;
-    }
-    // default behav.
-    return false;
-  }
-  // RIGHT: HEADER
   if (event == Event::l || event == Event::ArrowRight) {
     if (table_info.selected_col < total_cols - 1) {
       table_info.selected_col++;
-      ui::async_post_event(Event::Custom);
+      reset_view(table_info, screen);
       return true;
     }
     return false;
   }
-  // LEFT: HEADER
   if (event == Event::h || event == Event::ArrowLeft) {
     if (table_info.selected_col > 0) {
       table_info.selected_col--;
-      ui::async_post_event(Event::Custom);
+      reset_view(table_info, screen);
       return true;
     }
     return false;
   }
+
   if (event == Event::s) {
     modal_shown == true ? hide_modal() : show_modal();
     return true;
   }
   if (event == Event::T) {
-    man.kill_proc(processes[table_info.selected_row - 1].pid, SIGTERM);
-    return true;
-  }
-  // Jump to top
-    if (event == Event::PageUp || event == Event::g) {
-    table_info.selected_row = 1;
-    table_info.tracked_pid = processes[table_info.selected_row].pid;
-    return true;
-  }
-  // Jump top bottom
-  if (event == Event::PageDown || event == Event::G) {
-    table_info.selected_row = table_info.total_rows;
-    table_info.tracked_pid = processes[table_info.selected_row].pid;
-    return true;
-  }
-  if ((event == Event::Return || event == Event::Character(' ')) &&
-      !modal_shown) {
-    table_info.sorting_is_asc = !table_info.sorting_is_asc;
-    screen.PostEvent(Event::Custom);
+    if (table_info.selected_row >= 0 &&
+        table_info.selected_row < processes.size()) {
+      man.kill_proc(processes[table_info.selected_row].pid, SIGTERM);
+    }
     return true;
   }
 
+  // sort toggle
+  if ((event == Event::Return || event == Event::Character(' ')) &&
+      !modal_shown) {
+    table_info.sorting_is_asc = !table_info.sorting_is_asc;
+    reset_view(table_info, screen);
+    return true;
+  }
   return false;
 }

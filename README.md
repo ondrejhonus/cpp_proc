@@ -34,3 +34,10 @@ To install the compiled binary into your system's local bin directory, use:
 ```
 
 > You can then run the program with typing `cpm` into the terminal.
+
+### Build from source manually
+```bash
+git clone https://github.com/ondrejhonus/cpp_proc.git
+cd cpp_proc
+
+```
