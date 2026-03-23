@@ -13,6 +13,7 @@
 using namespace ftxui;
 
 #define TOTAL_COLS 5
+#define BOTTOM_TEXT "[q]uit | [Shift]+[k]ill process | [Return/Space] ASC/DESC | [PgUp/g] To Top | [PgUp/G] To Bottom"
 
 bool modal_shown = false;
 
@@ -28,9 +29,7 @@ int ui::draw_ui() {
     return vbox({text("CPM - Task Manager") | center | bold, separator(),
                  table_content->Render() | flex,
                  separator(),
-                 text("[q]uit | [Shift]+[k]ill process | [Return/Space] "
-                      "ASC/DESC") |
-                     center}) |
+                 text(BOTTOM_TEXT) | center}) |
            border;
   });
 
@@ -78,6 +77,16 @@ void ui::async_post_event_loop(Event event, unsigned int interval_ms) {
   }).detach(); 
 }
 
+std::string calc_mem_to_str(long mem) {
+    std::string mem_str;
+    if (mem >= 1000000)
+      return std::to_string(mem / 1000000) + " GB";
+    else if (mem >= 1000)
+      return std::to_string(mem / 1000) + " MB";
+
+    return std::to_string(mem) + " KB";
+}
+
 ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
                                   ui::TableInfo& table_info) {
   return Renderer([&]() {
@@ -104,7 +113,7 @@ ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
       }
       const auto& p = processes[i];
       rows.push_back({std::to_string(p.pid), p.name, p.state,
-                      std::to_string(p.memory) + " KB",
+                      calc_mem_to_str(p.memory),
                       std::to_string(p.cpu_percent) + " %"});
     }
 
@@ -126,7 +135,6 @@ ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
         table.SelectRow(table_info.selected_row).Decorate(focus);
       }
       table.SelectCell(table_info.selected_col, 0).Decorate(inverted);
-      // table.SelectCell(table_info.selected_col, 0).Decorate(focus);
 
       switch (table_info.selected_col) {
         case 0:

@@ -68,13 +68,15 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
     return true;
   }
   // Jump to top
-    if (event == Event::PageUp) {
-    table_info.selected_row = 1;
+    if (event == Event::PageUp || event == Event::g) {
+    table_info.selected_row = 0;
+    table_info.tracked_pid = processes[table_info.selected_row].pid;
     return true;
   }
   // Jump top bottom
-  if (event == Event::PageDown) {
+  if (event == Event::PageDown || event == Event::G) {
     table_info.selected_row = table_info.total_rows;
+    table_info.tracked_pid = processes[table_info.selected_row].pid;
     return true;
   }
   if ((event == Event::Return || event == Event::Character(' ')) &&
