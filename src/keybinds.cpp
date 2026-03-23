@@ -38,7 +38,7 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
   // DOWN
   if (event == Event::ArrowDown || event == Event::j ||
       (event.is_mouse() && event.mouse().button == Mouse::WheelDown)) {
-    if (table_info.selected_row < table_info.total_rows - 1 && !modal_shown) {
+    if (table_info.selected_row < table_info.total_rows && !modal_shown) {
       table_info.selected_row++;
       if (table_info.selected_row <= processes.size()) {
         table_info.tracked_pid = processes[table_info.selected_row].pid;
