@@ -20,17 +20,14 @@ ui::TableInfo table_info;
 ProcessManager process_manager;
 std::vector<ProcessManager::Proc> processes = {};
 
-int get_pid_of_selected(int selected_row) {
-  return processes[selected_row].pid;
-}
-
 int ui::draw_ui() {
   auto screen = ScreenInteractive::TerminalOutput();
 
   auto table_content = create_table(processes, table_info);
   auto layout = Renderer(table_content, [&] {
     return vbox({text("CPM - Task Manager") | center | bold, separator(),
-                 table_content->Render() | flex, separator(),
+                 table_content->Render() | flex,
+                 separator(),
                  text("[q]uit | [Shift]+[k]ill process | [Return/Space] "
                       "ASC/DESC") |
                      center}) |
@@ -58,6 +55,10 @@ int ui::draw_ui() {
 
   screen.Loop(final_ui);
   return 0;
+}
+
+int get_pid_of_selected(int selected_row) {
+  return processes[selected_row].pid;
 }
 
 void ui::async_post_event(Event event) {
@@ -125,7 +126,7 @@ ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
         table.SelectRow(table_info.selected_row).Decorate(focus);
       }
       table.SelectCell(table_info.selected_col, 0).Decorate(inverted);
-      table.SelectCell(table_info.selected_col, 0).Decorate(focus);
+      // table.SelectCell(table_info.selected_col, 0).Decorate(focus);
 
       switch (table_info.selected_col) {
         case 0:
