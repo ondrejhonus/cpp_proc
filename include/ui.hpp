@@ -44,6 +44,7 @@ class ui {
     bool sorting_is_asc = true;
   } TableInfo;
   static void async_post_event(ftxui::Event event);
+  static void async_post_event_loop(ftxui::Event, unsigned int interval_ms);
 
  private:
   ftxui::Component create_table(std::vector<ProcessManager::Proc>& procs,

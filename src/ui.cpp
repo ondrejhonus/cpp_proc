@@ -21,8 +21,6 @@ ProcessManager process_manager;
 std::vector<ProcessManager::Proc> processes = {};
 
 int get_pid_of_selected(int selected_row) {
-  // processes = process_manager.get_all_proc(table_info.sorting_method,
-  //                                          table_info.sorting_is_asc);
   return processes[selected_row].pid;
 }
 
@@ -63,10 +61,20 @@ int ui::draw_ui() {
 }
 
 void ui::async_post_event(Event event) {
-  std::thread([event] {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    ScreenInteractive::Active()->PostEvent(event);
-  }).detach();
+    std::thread([event] {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        ScreenInteractive::Active()->PostEvent(event);
+      }).detach();  
+}
+
+void ui::async_post_event_loop(Event event, unsigned int interval_ms) {
+  std::thread([event, interval_ms] {
+    while (true) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(interval_ms));
+      auto screen = ScreenInteractive::Active();
+      if (!screen) break; else screen->PostEvent(event);
+    }
+  }).detach(); 
 }
 
 ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
