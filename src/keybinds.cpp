@@ -5,6 +5,7 @@
 using namespace ftxui;
 
 bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
+                             const std::vector<ProcessManager::Proc>& processes,
                              int total_cols, bool& modal_shown,
                              std::function<void()> show_modal,
                              std::function<void()> hide_modal,
@@ -22,6 +23,10 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
       (event.is_mouse() && event.mouse().button == Mouse::WheelUp)) {
     if (table_info.selected_row > 0 && !modal_shown) {
       table_info.selected_row--;
+      // dont follow row, follow pid
+      if (table_info.selected_row <= processes.size()) {
+        table_info.tracked_pid = processes[table_info.selected_row - 1].pid;
+      }
       return true;
     }
     return false;
@@ -46,6 +51,9 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
       (event.is_mouse() && event.mouse().button == Mouse::WheelDown)) {
     if (table_info.selected_row < table_info.total_rows - 1 && !modal_shown) {
       table_info.selected_row++;
+      if (table_info.selected_row <= processes.size()) {
+        table_info.tracked_pid = processes[table_info.selected_row - 1].pid;
+    }
       return true;
     }
     // default behav.

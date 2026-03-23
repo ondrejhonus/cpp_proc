@@ -11,6 +11,7 @@ class keybinds {
 
  public:
   static bool handle_events(ftxui::Event event, ui::TableInfo& table_info,
+                            const std::vector<ProcessManager::Proc>& processes,
                             int total_cols, bool& modal_shown,
                             std::function<void()> show_modal,
                             std::function<void()> hide_modal,

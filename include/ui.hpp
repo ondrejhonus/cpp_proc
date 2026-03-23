@@ -37,12 +37,14 @@ class ui {
   } ModalOptions;
 
   typedef struct {
-    int selected_row = 0;
+    int selected_row = 1;
     int selected_col = 0;
+    int tracked_pid = -1;
     int total_rows = 0;
     std::string sorting_method = "pid";
     bool sorting_is_asc = true;
   } TableInfo;
+
   static void async_post_event(ftxui::Event event);
   static void async_post_event_loop(ftxui::Event, unsigned int interval_ms);
 

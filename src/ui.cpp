@@ -51,7 +51,7 @@ int ui::draw_ui() {
 
   // keybinds
   final_ui = CatchEvent(final_ui, [&](Event event) {
-    return keybinds::handle_events(event, table_info, TOTAL_COLS, modal_shown,
+    return keybinds::handle_events(event, table_info, processes, TOTAL_COLS, modal_shown,
                                    modal_options.show_modal,
                                    modal_options.hide_modal, screen);
   });
@@ -83,6 +83,19 @@ ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
     processes = process_manager.get_all_proc(table_info.sorting_method,
                                              table_info.sorting_is_asc);
     table_info.total_rows = processes.size();
+    
+    if (table_info.tracked_pid != -1) {
+        bool process_exists = false;
+        for (int i = 0; i < processes.size(); ++i) {
+            if (processes[i].pid == table_info.tracked_pid) {
+                table_info.selected_row = i + 1; // +1 header
+                process_exists = true;
+                break;
+            }
+        }
+        if (!process_exists) table_info.tracked_pid = -1;
+    }
+
     std::vector<std::vector<std::string>> rows;
     for (int i = 0; i < table_info.total_rows; ++i) {
       if (i == 0) {
