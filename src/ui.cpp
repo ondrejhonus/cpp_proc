@@ -266,63 +266,63 @@ void ui::set_modal_entries(ui::ModalOptions& modal_options) {
   modal_options.hide_modal = [&] { modal_shown = false; };
 
   modal_options.sighup = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGHUP);
   };
   modal_options.sigint = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGINT);
   };
   modal_options.sigquit = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGQUIT);
   };
   modal_options.sigill = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGILL);
   };
   modal_options.sigtrap = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGTRAP);
   };
   modal_options.sigabrt = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGABRT);
   };
   modal_options.sigbus = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGBUS);
   };
   modal_options.sigfpe = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGFPE);
   };
   modal_options.sigkill = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGKILL);
   };
   modal_options.sigusr1 = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGUSR1);
   };
   modal_options.sigegv = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGSEGV);
   };
   modal_options.sigusr2 = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGUSR2);
   };
   modal_options.sigpipe = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGPIPE);
   };
   modal_options.sigalrm = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGALRM);
   };
   modal_options.sigterm = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
                               SIGTERM);
   };
 }
