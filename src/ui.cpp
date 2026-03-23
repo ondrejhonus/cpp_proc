@@ -15,18 +15,23 @@
 
 using namespace ftxui;
 
+#define UPDATE_INTERVAL_MS 3000
 #define TOTAL_COLS 5
 #define BOTTOM_TEXT                                                            \
   "[q]uit | [s]end signal | [T]erminate | [Return/Space] ASC/DESC | [PgUp/g] " \
   "To Top | [PgUp/G] To Bottom"
 
 bool modal_shown = false;
+std::atomic<bool> app_is_running{true};
 
 ui::TableInfo table_info;
 ProcessManager process_manager;
 std::vector<ProcessManager::Proc> processes = {};
 
 int ui::draw_ui() {
+  process_manager.get_all_proc("pid", true);
+  std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
   auto screen = ScreenInteractive::TerminalOutput();
 
   auto table_content = create_table(processes, table_info);
@@ -56,7 +61,14 @@ int ui::draw_ui() {
         modal_options.show_modal, modal_options.hide_modal, screen);
   });
 
+  auto trigger_update = [&screen]() { screen.PostEvent(Event::Custom); };
+
+  app_is_running = true;
+  ui::async_post_event_loop(trigger_update, UPDATE_INTERVAL_MS);
+
   screen.Loop(final_ui);
+
+  app_is_running = false;
   return 0;
 }
 
@@ -71,15 +83,12 @@ void ui::async_post_event(Event event) {
   }).detach();
 }
 
-void ui::async_post_event_loop(Event event, unsigned int interval_ms) {
-  std::thread([event, interval_ms] {
-    while (true) {
+void ui::async_post_event_loop(std::function<void()> post_event,
+                               unsigned int interval_ms) {
+  std::thread([post_event, interval_ms]() {
+    while (app_is_running) {
       std::this_thread::sleep_for(std::chrono::milliseconds(interval_ms));
-      auto screen = ScreenInteractive::Active();
-      if (!screen)
-        break;
-      else
-        screen->PostEvent(event);
+      post_event();  // update
     }
   }).detach();
 }
@@ -102,10 +111,6 @@ ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
   header_option.underline.color_active = Color::Plum2;
   header_option.underline.SetAnimationDuration(200ms);
   header_option.underline.SetAnimationFunction(animation::easing::BackOut);
-
-  header_option.on_enter = [&]() {
-    table_info.sorting_is_asc = !table_info.sorting_is_asc;
-  };
 
   header_option.entries_option.transform = [](const EntryState& state) {
     int width = 0;
@@ -159,10 +164,16 @@ ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
   return Renderer(container, [&, header_menu, process_menu]() {
     static int last_sorted_col = -1;
     static bool last_sorted_asc = table_info.sorting_is_asc;
+
+    static auto last_update_time = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
+    bool time_elapsed = (now - last_update_time) >=
+                        std::chrono::milliseconds(UPDATE_INTERVAL_MS - 100);
+
     bool col_changed = (last_sorted_col != table_info.selected_col);
     bool asc_changed = (last_sorted_asc != table_info.sorting_is_asc);
 
-    if (col_changed || asc_changed) {
+    if (col_changed || asc_changed || time_elapsed || processes.empty()) {
       switch (table_info.selected_col) {
         case 0:
           table_info.sorting_method = "pid";
@@ -210,6 +221,7 @@ ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
 
       last_sorted_col = table_info.selected_col;
       last_sorted_asc = table_info.sorting_is_asc;
+      last_update_time = now;
     }
 
     return vbox({header_menu->Render(), separator(),

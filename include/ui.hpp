@@ -41,12 +41,13 @@ class ui {
     int selected_col = 4;  // Default sorting method: CPU
     int tracked_pid = -1;
     int total_rows = 0;
-    std::string sorting_method;
+    std::string sorting_method = "cpu";
     bool sorting_is_asc = false;
   } TableInfo;
 
   static void async_post_event(ftxui::Event event);
-  static void async_post_event_loop(ftxui::Event, unsigned int interval_ms);
+  static void async_post_event_loop(std::function<void()> post_event,
+                                    unsigned int interval_ms);
 
  private:
   ftxui::Component create_table(std::vector<ProcessManager::Proc>& processes,
