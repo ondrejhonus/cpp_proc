@@ -13,7 +13,7 @@
 using namespace ftxui;
 
 #define TOTAL_COLS 5
-#define BOTTOM_TEXT "[q]uit | [Shift]+[k]ill process | [Return/Space] ASC/DESC | [PgUp/g] To Top | [PgUp/G] To Bottom"
+#define BOTTOM_TEXT "[q]uit | [s]end signal | [T]erminate | [Return/Space] ASC/DESC | [PgUp/g] To Top | [PgUp/G] To Bottom"
 
 bool modal_shown = false;
 
@@ -27,7 +27,7 @@ int ui::draw_ui() {
   auto table_content = create_table(processes, table_info);
   auto layout = Renderer(table_content, [&] {
     return vbox({text("CPM - Task Manager") | center | bold, separator(),
-                 table_content->Render() | flex,
+                 table_content->Render() | vscroll_indicator | yframe | flex,
                  separator(),
                  text(BOTTOM_TEXT) | center}) |
            border;
@@ -47,7 +47,7 @@ int ui::draw_ui() {
 
   // keybinds
   final_ui = CatchEvent(final_ui, [&](Event event) {
-    return keybinds::handle_events(event, table_info, processes, TOTAL_COLS, modal_shown,
+    return keybinds::handle_events(event, table_info, processes, process_manager,  TOTAL_COLS, modal_shown,
                                    modal_options.show_modal,
                                    modal_options.hide_modal, screen);
   });
@@ -93,18 +93,6 @@ ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
     processes = process_manager.get_all_proc(table_info.sorting_method,
                                              table_info.sorting_is_asc);
     table_info.total_rows = processes.size();
-    
-    if (table_info.tracked_pid != -1) {
-        bool process_exists = false;
-        for (int i = 0; i < processes.size(); ++i) {
-            if (processes[i].pid == table_info.tracked_pid) {
-                table_info.selected_row = i + 1; // +1 header
-                process_exists = true;
-                break;
-            }
-        }
-        if (!process_exists) table_info.tracked_pid = -1;
-    }
 
     std::vector<std::vector<std::string>> rows;
     for (int i = 0; i < table_info.total_rows; ++i) {
@@ -116,6 +104,18 @@ ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
                       calc_mem_to_str(p.memory),
                       std::to_string(p.cpu_percent) + " %"});
     }
+    
+    if (table_info.tracked_pid != -1) {
+        bool process_exists = false;
+        for (int i = 0; i < processes.size(); ++i) {
+            if (processes[i].pid == table_info.tracked_pid) {
+                table_info.selected_row = i; // +1 header
+                process_exists = true;
+                break;
+            }
+        }
+        if (!process_exists) table_info.tracked_pid = -1;
+    }
 
     auto table = Table(rows);
     table.SelectAll().Border(LIGHT);
@@ -124,7 +124,6 @@ ftxui::Component ui::create_table(std::vector<ProcessManager::Proc>& processes,
     table.SelectRow(0).Decorate(bold);
     table.SelectRow(0).SeparatorVertical(LIGHT);
 
-    // flex size on all columnds based on terminal size
     table.SelectColumns(0, TOTAL_COLS - 1).Decorate(flex_grow);
 
     if (table_info.total_rows > 0) {
@@ -196,63 +195,63 @@ void ui::set_modal_entries(ui::ModalOptions& modal_options) {
   modal_options.hide_modal = [&] { modal_shown = false; };
 
   modal_options.sighup = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGHUP);
   };
   modal_options.sigint = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGINT);
   };
   modal_options.sigquit = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGQUIT);
   };
   modal_options.sigill = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGILL);
   };
   modal_options.sigtrap = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGTRAP);
   };
   modal_options.sigabrt = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGABRT);
   };
   modal_options.sigbus = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGBUS);
   };
   modal_options.sigfpe = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGFPE);
   };
   modal_options.sigkill = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGKILL);
   };
   modal_options.sigusr1 = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGUSR1);
   };
   modal_options.sigegv = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGSEGV);
   };
   modal_options.sigusr2 = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGUSR2);
   };
   modal_options.sigpipe = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGPIPE);
   };
   modal_options.sigalrm = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGALRM);
   };
   modal_options.sigterm = [&] {
-    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row),
+    process_manager.kill_proc(get_pid_of_selected(table_info.selected_row - 1),
                               SIGTERM);
   };
 }

@@ -13,6 +13,7 @@
 
 #include "sort.hpp"
 #include "sysinfo.hpp"
+#include <cstring>
 
 using std::string;
 sysinfo sys_info;
@@ -37,10 +38,13 @@ std::vector<ProcessManager::Proc> ProcessManager::get_all_proc(
 }
 
 bool ProcessManager::kill_proc(int pid, int sig) {
-  if (sig > 0 && sig <= 15) {
-    return kill(pid, sig) == 0;
-  }
-  return false;
+  if (kill(pid, sig) == 0) {
+        return true;
+    } else {
+        // log problem
+        std::cerr << "Kill failed for PID " << pid << ": " << strerror(errno) << std::endl;
+        return false;
+    }
 }
 
 bool ProcessManager::is_num(string& name) {

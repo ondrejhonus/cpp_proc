@@ -1,11 +1,14 @@
-#include "keybinds.hpp"
+#include <signal.h>
 
+#include "keybinds.hpp"
 #include "ui.hpp"
+#include "manager.hpp"
 
 using namespace ftxui;
 
 bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
                              const std::vector<ProcessManager::Proc>& processes,
+                             ProcessManager man,
                              int total_cols, bool& modal_shown,
                              std::function<void()> show_modal,
                              std::function<void()> hide_modal,
@@ -26,7 +29,7 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
       table_info.selected_row--;
       // dont follow row, follow pid
       if (table_info.selected_row <= processes.size()) {
-        table_info.tracked_pid = processes[table_info.selected_row - 1].pid;
+        table_info.tracked_pid = processes[table_info.selected_row].pid;
       }
       return true;
     }
@@ -38,7 +41,7 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
     if (table_info.selected_row < table_info.total_rows - 1 && !modal_shown) {
       table_info.selected_row++;
       if (table_info.selected_row <= processes.size()) {
-        table_info.tracked_pid = processes[table_info.selected_row - 1].pid;
+        table_info.tracked_pid = processes[table_info.selected_row].pid;
     }
       return true;
     }
@@ -63,13 +66,17 @@ bool keybinds::handle_events(ftxui::Event event, ui::TableInfo& table_info,
     }
     return false;
   }
-  if (event == Event::K) {
+  if (event == Event::s) {
     modal_shown == true ? hide_modal() : show_modal();
+    return true;
+  }
+  if (event == Event::T) {
+    man.kill_proc(processes[table_info.selected_row - 1].pid, SIGTERM);
     return true;
   }
   // Jump to top
     if (event == Event::PageUp || event == Event::g) {
-    table_info.selected_row = 0;
+    table_info.selected_row = 1;
     table_info.tracked_pid = processes[table_info.selected_row].pid;
     return true;
   }
