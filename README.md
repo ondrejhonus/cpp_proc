@@ -2,6 +2,9 @@
 
 An `htop`-like process manager made in `C++` using the [`ftxui`](https://github.com/ArthurSonzogni/FTXUI) library for TUI functionality.
 
+<img src="./img/screenshot.png" width="75%" alt="Screenshot of CPM">
+
+
 ## Functions
 
 - See all running processes
